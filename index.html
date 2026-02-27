@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save the Date | Rami & Mamphara</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables for Theming */
+        :root {
+            --font-primary: 'Cormorant Garamond', serif;
+            --font-secondary: 'Roboto', sans-serif;
+            
+            --color-text-dark: #3a3330;
+            --color-text-main: #4a4440;
+            --color-text-light: #88807b;
+            --color-accent: #c75070; /* Blush Pink */
+            
+            --color-inside: #e8e6df;
+            --color-env-bottom: #f2f1ec;
+            --color-env-side: #f7f6f3;
+            --color-env-flap: #fefdfb;
+            
+            --color-card-bg: #fdfdfc;
+            --paper-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.12'/%3E%3C/svg%3E");
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            font-weight: 500;
+            background-color: var(--color-inside);
+            background-image: var(--paper-texture);
+            color: var(--color-text-main);
+            overflow: hidden; /* Prevents scroll before opening */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+            transition: padding 1s ease;
+        }
+
+        /* * ENVELOPE SCENE */
+        #envelope-scene {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background-color: var(--color-inside);
+            perspective: 1200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease 1s, transform 1s ease 1s, visibility 0s linear 2s;
+        }
+
+        .flap-left { position: absolute; top: 0; left: 0; width: 50vw; height: 100vh; background-color: var(--color-env-side); background-image: var(--paper-texture); clip-path: polygon(0 0, 100% 60%, 0 100%); z-index: 2; }
+        .flap-right { position: absolute; top: 0; right: 0; width: 50vw; height: 100vh; background-color: var(--color-env-side); background-image: var(--paper-texture); clip-path: polygon(100% 0, 0 60%, 100% 100%); z-index: 2; }
+        .flap-bottom { position: absolute; bottom: 0; left: 0; width: 100vw; height: 60vh; background-color: var(--color-env-bottom); background-image: var(--paper-texture); clip-path: polygon(0 100%, 50% 0, 100% 100%); z-index: 3; }
+        .flap-top-wrapper { position: absolute; top: 0; left: 0; width: 100vw; height: 65vh; filter: drop-shadow(0px 8px 15px rgba(0, 0, 0, 0.12)); z-index: 4; transform-origin: top center; transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1) 0.4s; transform-style: preserve-3d; }
+        .flap-top { width: 100%; height: 100%; background-color: var(--color-env-flap); background-image: var(--paper-texture), linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(254,253,251,0)); clip-path: polygon(0 0, 100% 0, 50% 100%); position: relative; }
+
+        .envelope-date {
+            position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
+            font-family: var(--font-primary); font-weight: 500; font-style: italic;
+            font-size: clamp(2.5rem, 5vw, 4rem); color: var(--color-accent);
+            letter-spacing: 2px; white-space: nowrap; rotate: -2deg; opacity: 0.9;
+        }
+
+        .wax-seal-btn {
+            position: absolute; top: 65vh; left: 50%; transform: translate(-50%, -50%);
+            z-index: 5; cursor: pointer; border: none; background: transparent; outline: none;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+        }
+
+        .wax-seal-img {
+            width: 250px; height: 250px; object-fit: contain;
+            filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35));
+            transition: filter 0.3s ease, transform 0.3s ease;
+        }
+
+        /* * INVITATION SCENE */
+        #invitation-scene {
+            position: relative;
+            z-index: 50;
+            background-color: var(--color-card-bg);
+            background-image: var(--paper-texture);
+            width: 90vw;
+            max-width: 600px;
+            padding: 4rem 2.5rem;
+            margin: 2rem auto; /* Added margin for safe scrolling */
+            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+            pointer-events: none;
+            transition: opacity 1s ease 1.2s, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 1.2s;
+        }
+
+        #invitation-scene::after {
+            content: ''; position: absolute; inset: 15px; border: 1px solid rgba(199, 80, 112, 0.15); pointer-events: none;
+        }
+
+        .invite-headline { font-weight: 600; font-size: clamp(3rem, 6vw, 4.5rem); color: var(--color-accent); margin-bottom: 1rem; line-height: 1; }
+        .invite-names { font-family: var(--font-secondary); font-weight: 300; font-size: clamp(1.8rem, 4vw, 2.5rem); color: var(--color-text-dark); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        .invite-date { font-family: var(--font-secondary); font-weight: 400; font-size: 1rem; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 2.5rem; }
+
+        /* Countdown */
+        .countdown-container { display: flex; gap: clamp(1rem, 3vw, 2.5rem); margin-bottom: 2rem; }
+        .countdown-box { display: flex; flex-direction: column; align-items: center; min-width: 60px; }
+        .countdown-number { font-weight: 600; font-size: clamp(2.5rem, 5vw, 3.5rem); color: var(--color-accent); line-height: 1; margin-bottom: 0.5rem; }
+        .countdown-label { font-family: var(--font-secondary); font-weight: 400; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--color-text-light); }
+
+        .invite-message { font-style: italic; font-size: 1.2rem; color: var(--color-text-main); margin-bottom: 2rem; }
+
+        /* Elegant Divider */
+        .divider { width: 60%; height: 1px; background: linear-gradient(90deg, transparent, rgba(199, 80, 112, 0.3), transparent); margin: 0 auto 2.5rem auto; }
+
+        /* * FORM STYLES */
+        .form-container { width: 100%; text-align: left; }
+        .form-intro { text-align: center; font-family: var(--font-secondary); font-size: 0.95rem; color: var(--color-text-dark); margin-bottom: 1.5rem; line-height: 1.5; }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; font-family: var(--font-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; color: var(--color-text-main); }
+        .form-control { width: 100%; padding: 0.8rem; border: 1px solid #e0dbd8; border-radius: 4px; font-family: var(--font-secondary); font-size: 1rem; background: transparent; color: var(--color-text-dark); transition: border-color 0.3s; }
+        .form-control:focus { outline: none; border-color: var(--color-accent); }
+        textarea.form-control { resize: vertical; min-height: 90px; }
+        
+        .disclaimer { display: block; font-size: 0.85rem; color: var(--color-text-light); font-style: italic; margin-top: 0.4rem; }
+        
+        /* Buttons */
+        .btn { display: inline-block; background-color: var(--color-accent); color: white; border: none; padding: 1rem 2rem; font-family: var(--font-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; border-radius: 4px; transition: background-color 0.3s, transform 0.2s; width: 100%; text-align: center; text-decoration: none; }
+        .btn:hover { background-color: #a63f59; }
+        .btn:active { transform: scale(0.98); }
+
+        /* Success State */
+        #success-scene { display: none; width: 100%; text-align: center; animation: fadeIn 0.8s ease forwards; }
+        .success-title { font-size: 2.5rem; color: var(--color-accent); margin-bottom: 0.5rem; font-style: italic; }
+        .success-text { font-family: var(--font-secondary); font-size: 1rem; margin-bottom: 2rem; line-height: 1.5; }
+        
+        /* Validation Error Styles */
+        .error-text {
+            color: #d9534f; /* Soft red */
+            font-size: 0.75rem;
+            display: none; /* Hidden by default */
+            margin-top: 0.3rem;
+            font-family: var(--font-secondary);
+        }
+        .form-control.is-invalid {
+            border-color: #d9534f;
+            background-color: #fffaf9;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Animations for Opening */
+        body.is-opening { padding: 2rem 0; /* Creates space for the longer card on mobile */ }
+        body.is-opening .wax-seal-btn { transform: translate(-50%, -50%) scale(0); opacity: 0; pointer-events: none; }
+        body.is-opening .flap-top-wrapper { transform: rotateX(180deg); }
+        body.is-opening #envelope-scene { opacity: 0; transform: scale(1.05); visibility: hidden; }
+        body.is-opening #invitation-scene { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+
+        @media (max-width: 480px) {
+            #invitation-scene { padding: 3rem 1.5rem; width: 95vw; }
+            .countdown-container { gap: 1rem; }
+            .countdown-box { min-width: 50px; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="envelope-scene">
+        <div class="flap-left"></div>
+        <div class="flap-right"></div>
+        <div class="flap-bottom"></div>
+        <div class="flap-top-wrapper">
+            <div class="flap-top">
+                <div class="envelope-date">26 / 09 / 2026</div>
+            </div>
+        </div>
+        <button class="wax-seal-btn" id="open-btn" aria-label="Open Invitation">
+            <img src="/assets/rm-wax-seal.png" alt="Wax Seal" class="wax-seal-img">
+        </button>
+    </div>
+
+    <main id="invitation-scene" aria-hidden="true">
+        <h1 class="invite-headline">Save the Date!</h1>
+        <h2 class="invite-names">Rami and Mamphara</h2>
+        <div class="invite-date">26 September 2026</div>
+
+        <div class="countdown-container">
+            <div class="countdown-box">
+                <span class="countdown-number" id="cd-days">00</span>
+                <span class="countdown-label">Days</span>
+            </div>
+            <div class="countdown-box">
+                <span class="countdown-number" id="cd-hours">00</span>
+                <span class="countdown-label">Hours</span>
+            </div>
+            <div class="countdown-box">
+                <span class="countdown-number" id="cd-minutes">00</span>
+                <span class="countdown-label">Mins</span>
+            </div>
+            <div class="countdown-box">
+                <span class="countdown-number" id="cd-seconds">00</span>
+                <span class="countdown-label">Secs</span>
+            </div>
+        </div>
+
+        <p class="invite-message">Join us to celebrate.<br>More details to follow.</p>
+        
+        <div class="divider"></div>
+
+       <div class="form-container" id="contact-form-container">
+            <p class="form-intro">Please share your contact details below so we can easily send your formal RSVP link.</p>
+            <form id="save-the-date-form" novalidate>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fname">Name *</label>
+                        <input type="text" id="fname" name="fname" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lname">Surname *</label>
+                        <input type="text" id="lname" name="lname" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cell">Cellphone *</label>
+                        <input type="tel" id="cell" name="cell" class="form-control" placeholder="e.g. 0821234567" required>
+                        <span class="error-text" id="cell-error">Please enter a valid phone number.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="e.g. name@example.com" required>
+                        <span class="error-text" id="email-error">Please enter a valid email address.</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Leave a Message (Optional)</label>
+                    <textarea id="message" name="message" class="form-control" placeholder="Write well wishes here..."></textarea>
+                    <span class="disclaimer">This message will be visible to the couple and all recipients.</span>
+                </div>
+
+                <button type="submit" class="btn">Share Details</button>
+            </form>
+        </div>
+
+        <div id="success-scene">
+            <h3 class="success-title">Thank You!</h3>
+            <p class="success-text">Your details have been saved.<br>We can't wait to celebrate with you!</p>
+            
+            <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Wedding+of+Rami+and+Mamphara&dates=20260926T000000Z/20260927T000000Z&details=Save+the+date+for+the+wedding+of+Rami+and+Mamphara!+Formal+invitations+to+follow." 
+               target="_blank" rel="noopener noreferrer" class="btn">
+               Add to Google Calendar
+            </a>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            /* --- ENVELOPE OPENING LOGIC --- */
+            const openBtn = document.getElementById('open-btn');
+            const invitationScene = document.getElementById('invitation-scene');
+            
+            openBtn.addEventListener('click', () => {
+                openBtn.disabled = true;
+                document.body.classList.add('is-opening');
+                invitationScene.setAttribute('aria-hidden', 'false');
+                
+                // Allow vertical scrolling once the envelope is fully out of the way
+                setTimeout(() => { 
+                    document.body.style.overflow = 'auto'; 
+                }, 2000); 
+            });
+
+            /* --- COUNTDOWN LOGIC --- */
+            const targetDate = new Date("September 26, 2026 00:00:00").getTime();
+            const elDays = document.getElementById('cd-days'),
+                  elHours = document.getElementById('cd-hours'),
+                  elMinutes = document.getElementById('cd-minutes'),
+                  elSeconds = document.getElementById('cd-seconds');
+
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+                if (distance < 0) return;
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                elDays.textContent = days;
+                elHours.textContent = hours.toString().padStart(2, '0');
+                elMinutes.textContent = minutes.toString().padStart(2, '0');
+                elSeconds.textContent = seconds.toString().padStart(2, '0');
+            }
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+
+            /* --- FORM SUBMISSION & FIREBASE PREP --- */
+            const rsvpForm = document.getElementById('save-the-date-form');
+            const formContainer = document.getElementById('contact-form-container');
+            const successScene = document.getElementById('success-scene');
+
+            rsvpForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // Stop the page from reloading
+
+                // 1. Gather the data from the form
+                const formData = {
+                    firstName: document.getElementById('fname').value,
+                    lastName: document.getElementById('lname').value,
+                    cellphone: document.getElementById('cell').value,
+                    email: document.getElementById('email').value,
+                    message: document.getElementById('message').value,
+                    timestamp: new Date().toISOString()
+                };
+
+                // 2. THIS IS WHERE YOUR FIREBASE CODE WILL GO
+                /* When you hook up Firebase for rmunion.co.za, you will do something like this:
+                   
+                   import { collection, addDoc } from "firebase/firestore"; 
+                   
+                   try {
+                     const docRef = await addDoc(collection(db, "guests"), formData);
+                     console.log("Document written with ID: ", docRef.id);
+                     
+                     // Run the UI switch below ONLY on success
+                   } catch (error) {
+                     console.error("Error adding document: ", error);
+                     alert("Something went wrong, please try again.");
+                   }
+                */
+
+                // 3. Update the UI to show the 'Add to Calendar' state
+                // (Right now, this simulates a successful database save)
+                formContainer.style.display = 'none';
+                successScene.style.display = 'block';
+                
+                // Optional: Scroll back slightly to ensure the success message is in view
+                successScene.scrollIntoView({ behavior: "smooth", block: "center" });
+            });
+        });
+    </script>
+</body>
+</html>
